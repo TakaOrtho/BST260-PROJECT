@@ -26,7 +26,10 @@ data <- left_join(data,cens,by="Zip")
 data <- left_join(data,hpno,by="Zip")
 head(data)
 
-table(data$MEAN, data$Amputation)
+
+
+
+#REGRESSION
 mod1 <- lm(Amputation ~ MEAN, data = data)
 mod2 <- lm(Amputation ~ AREA, data = data)
 library(jtools)
