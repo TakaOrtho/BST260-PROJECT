@@ -19,7 +19,7 @@ hpno <- read_csv("HpNumPerZip.csv")
 hpno <- hpno %>%   rename('Zip' = 'ZIPCODE')
 
 names(data)
-
+ 
 #merge
 data <- left_join(data,dist,by="Zip")
 data <- left_join(data,cens,by="Zip")
