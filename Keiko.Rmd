@@ -5,26 +5,30 @@ date: "11/29/2019"
 output: html_document
 ---
 
+read datafile 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readr)
+data <- read_delim("injurydata.csv",";", escape_double = FALSE, trim_ws = TRUE)
 ```
 
-## R Markdown
+cアンプタ+/-の距離の箱ひげ図
+```{r}
+library(ggplot2)
+data$AMPUTATION
+data$HOSPITALIZED
+data[c(168,169,170,331,332,333,436,437,438),]
+data[c(436,437,438),]
+data$AMPUTATION <- as.character(data$AMPUTATION)
+data %>% ggplot(aes(group=AMPUTATION,y=NEAR_DIST))+
+  geom_boxplot()
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+cRegression　(age, distance, hospitalization, multiple injury+/-)
+```{r}
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
