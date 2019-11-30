@@ -65,11 +65,12 @@ dataa <- data %>% filter(HOSPITALIZED<2)
 datas <- dataa %>% filter(HOSPITALIZED>-1)
 datad <- datas %>% filter(AMPUTATION<2)
 dataf <- datad %>% filter(AMPUTATION>-1)
+dataq <- dataf %>% filter(NEAR_FID>0)
 
 hist(dataf$NEAR_DIST)
 summary(dataf$NEAR_DIST)
 
-datag <- dataf %>% filter(NEAR_DIST<10^6)
+datag <- dataq %>% filter(NEAR_DIST<10^6)
 ```
 
 
@@ -92,6 +93,17 @@ datag %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 
   xlab("distance to hospital, log10, meter")
 ```
 
+ttest
+```{r}
+t.test(datag$NEAR_DIST~datag$AMPUTATION)
+```
+
+
+
+### regression
+
+
+detecting mutiple injury
 ```{r}
 Left<-function(x,chr){
     return(substr(x,1,chr))}
@@ -109,3 +121,10 @@ cRegression　(age, distance, hospitalization, multiple injury+/-)
 fit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = datag, family = "binomial")
 summary(fit)
 ```
+
+
+```{r}
+datag %>% ggplot(x=MultiInj, y=AMPUTATION)+
+  geom_col()
+```
+
