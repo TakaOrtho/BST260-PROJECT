@@ -71,10 +71,9 @@ summary(dataf$NEAR_DIST)
 
 datag <- dataf %>% filter(NEAR_DIST<10^6)
 ```
-```{r}
 
-```
 
+boxplot
 ```{r}
 datag$AMPUTATION <- as.factor(datag$AMPUTATION)
 datag %>%
@@ -87,9 +86,26 @@ datag %>%
 
 
 
-cRegression　(age, distance, hospitalization, multiple injury+/-)
+density graph
 ```{r}
 datag %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 0.2)+
   xlab("distance to hospital, log10, meter")
 ```
 
+```{r}
+Left<-function(x,chr){
+    return(substr(x,1,chr))}
+
+datag<-mutate(datag, leftMul = Left(PARTOFBODYTITLE,3))
+
+datag<-mutate(datag, MultiInj = ifelse(datag$leftMul=="Mul", "1", "0"))
+head(datag)
+
+```
+
+
+cRegression　(age, distance, hospitalization, multiple injury+/-)
+```{r}
+fit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = datag, family = "binomial")
+summary(fit)
+```
