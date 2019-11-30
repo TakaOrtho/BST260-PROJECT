@@ -19,9 +19,69 @@ data$AMPUTATION
 data$HOSPITALIZED
 data[c(168,169,170,331,332,333,436,437,438),]
 data[c(436,437,438),]
-data$AMPUTATION <- as.character(data$AMPUTATION)
-data %>% ggplot(aes(group=AMPUTATION,y=NEAR_DIST))+
-  geom_boxplot()
+nrow(data)
+```
+
+
+```{r}
+data1<- data %>%
+filter(data$ZIP<99999)
+nrow(data1)
+
+data2<-data1 %>%
+filter(data1$ZIP>1000) 
+dat
+```
+
+
+
+```{r}
+summary(data2$AMPUTATION)
+hist(data2$AMPUTATION)
+
+```
+
+```{r}
+
+data3 <- data2 %>% filter(AMPUTATION==c("0","1")) 
+nrow(data3)
+data4 <- data3 %>% filter(NEAR_DIST<10^6)
+nrow(data4)
+
+hist(dat_2$NEAR_DIST)
+summary(dat_2$NEAR_DIST)
+
+dat_2 %>%
+  ggplot(aes(group=AMPUTATION,y=log10(NEAR_DIST)))+
+  geom_boxplot()+
+  xlab("amputation")+
+  ylab("distance from hospital log10")
+
+summary(dat$NEAR_DIST)
+```
+
+```{r}
+dataa <- data %>% filter(HOSPITALIZED<2)
+datas <- dataa %>% filter(HOSPITALIZED>-1)
+datad <- datas %>% filter(AMPUTATION<2)
+dataf <- datad %>% filter(AMPUTATION>-1)
+
+hist(dataf$NEAR_DIST)
+summary(dataf$NEAR_DIST)
+
+datag <- dataf %>% filter(NEAR_DIST<10^6)
+```
+```{r}
+
+```
+
+```{r}
+datag$AMPUTATION <- as.factor(datag$AMPUTATION)
+datag %>%
+  ggplot(aes(x=AMPUTATION,y=log10(NEAR_DIST)))+
+  geom_boxplot()+
+  xlab("amputation")+
+  ylab("distance from hospital log10")
 
 ```
 
@@ -29,6 +89,7 @@ data %>% ggplot(aes(group=AMPUTATION,y=NEAR_DIST))+
 
 cRegression　(age, distance, hospitalization, multiple injury+/-)
 ```{r}
-
+datag %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 0.2)+
+  xlab("distance to hospital, log10, meter")
 ```
 
