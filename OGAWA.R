@@ -13,7 +13,7 @@ map <- data %>% filter(NATURETITLE=='Fractures')
   addProviderTiles(providers$CartoDB.Positron, group = "Standard") %>%    addScaleBar()
 
 
-  
+
   
   
 
