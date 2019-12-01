@@ -28,10 +28,8 @@ datag<-mutate(datag, MultiInj = ifelse(datag$leftMul=="Mul", "1", "0"))
 
 #write to csv
 write.csv(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.csv", sep=";") 
-write.table(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.txt", sep="\t") 
 
 #read txt
 library(readr)
-injurydata1130 <- read_delim("injurydata1130.txt", 
-                             "\t", escape_double = FALSE, trim_ws = TRUE)
+data <- read_csv("injurydata1130.csv")
 View(injurydata1130)

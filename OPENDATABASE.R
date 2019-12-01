@@ -1,6 +1,8 @@
 library(tidyverse)
 library(readr)
-data <- read_delim("injurydata.csv",";", escape_double = FALSE, trim_ws = TRUE)
+library(readr)
+data <- read_csv("injurydata1130.csv")
+View(injurydata1130)
 
 
 #Please write your code here

@@ -128,5 +128,5 @@ datag %>% ggplot(x=MultiInj, y=AMPUTATION)+
   geom_col()
 ```
 #### 出力
-write.csv(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.csv", sep="," ) 
+write.csv(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.csv", sep=";" ) 
 
