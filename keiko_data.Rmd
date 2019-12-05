@@ -1,0 +1,69 @@
+---
+title: "keiko_data"
+author: "Keiko"
+date: "12/5/2019"
+output: html_document
+---
+
+
+read datafile 
+```{r setup, include=FALSE}
+source("Datasourse.R")
+library(ggplot2)
+```
+
+cアンプタ+/-の距離の箱ひげ図
+
+boxplot
+```{r}
+data$AMPUTATION <- as.factor(datag$AMPUTATION)
+data %>%
+  ggplot(aes(x=AMPUTATION,y=log10(NEAR_DIST)))+
+  geom_boxplot()+
+  xlab("amputation")+
+  ylab("distance from hospital log10")
+
+```
+
+density graph
+```{r}
+data %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 0.2)+
+  xlab("distance to hospital, log10, meter")
+```
+
+ttest
+```{r}
+t.test(data$NEAR_DIST~datag$AMPUTATION)
+```
+
+
+
+### regression
+
+
+detecting mutiple injury
+```{r}
+Left<-function(x,chr){
+    return(substr(x,1,chr))}
+
+data<-mutate(datag, leftMul = Left(PARTOFBODYTITLE,3))
+
+data<-mutate(datag, MultiInj = ifelse(datag$leftMul=="Mul", "1", "0"))
+head(data)
+
+```
+
+
+cRegression　(age, distance, hospitalization, multiple injury+/-)
+```{r}
+fit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
+summary(fit)
+```
+
+
+```{r}
+data %>% ggplot(x=MultiInj, y=AMPUTATION)+
+  geom_col()
+```
+
+
