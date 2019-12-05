@@ -1,0 +1,139 @@
+---
+title: "keitaro_260final"
+author: "Keitaro Mahara"
+date: "12/5/2019"
+output: html_document
+---
+
+```{r data extraction}
+library(tidyverse)
+library(readr)
+data <- read_delim("injurydata.csv",";", escape_double = FALSE, trim_ws = TRUE)
+```
+```{r data wrangling}
+data1<- data %>%
+filter(data$ZIP<99999)
+
+data2<-data1 %>%
+filter(data1$ZIP>1000) 
+
+data3 <- data2 %>% filter(AMPUTATION==c("0","1")) 
+data3%>% select(AMPUTATION)
+table(data3$AMPUTATION)
+data4 <- data3 %>% filter(NEAR_DIST<10^4)
+table(data4$AMPUTATION)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r amputaion and distance}
+
+res <- t.test(NEAR_DIST ~ AMPUTATION, data = data4)
+res$p.value
+res$estimate
+
+data_bar <- data4 %>% group_by(AMPUTATION) %>%
+  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
+data_bar 
+
+data_bar %>%
+  ggplot(aes(x = as.factor(AMPUTATION), y = mean)) +
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
+  xlab("amputation")+
+  ylab("distance from hospital")
+
+data_bar %>%
+  ggplot(aes(x = as.factor(AMPUTATION), y = mean)) +
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=mean - sd, ymax= mean +sd)) +
+  xlab("amputation")+
+  ylab("distance from hospital")
+
+summary(lm(AMPUTATION ~ NEAR_DIST, data=data4))
+
+
+```
+
+
+
+
+```{r distance and states, echo=FALSE}
+
+data_bar_s <- data4 %>% group_by(STATE) %>%
+  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
+data_bar_s
+class(data_bar)
+class(data_bar$mean)
+
+data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
+  ggplot(aes(x = STATE, y = mean)) +
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
+  xlab("State")+
+  ylab("distance from hospital") +
+   coord_flip() 
+
+```
+
+
+```{r amputation rate and distance by state}
+
+data_amputation_rate <- data4 %>% group_by(STATE) %>%
+  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n()),amputation_rate = mean(AMPUTATION)) 
+data_amputation_rate
+class(data_bar)
+class(data_bar$mean)
+class(data_bar$AMPUTATION)
+
+data_amputation_rate %>% 
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
+  geom_point()+
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,6000)
+
+library(ggrepel)
+data_amputation_rate %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
+  geom_point()+
+  geom_text(hjust = -0.1, nudge_x = 0.05, size = 3) +
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,6000)
+
+data_amputation_rate %>% 
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
+  geom_point()+
+  geom_smooth(method="lm") +
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,6000)
+
+cor.test(data_amputation_rate$mean, data_amputation_rate$amputation_rate)
+
+data_amputation_rate %>% filter(amputation_rate > 0) %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
+  geom_point()+
+  geom_smooth(method="lm") +
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,6000)
+
+
+
+
+
+```
+
