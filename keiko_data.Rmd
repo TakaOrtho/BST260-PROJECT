@@ -16,7 +16,7 @@ cアンプタ+/-の距離の箱ひげ図
 
 boxplot
 ```{r}
-data$AMPUTATION <- as.factor(datag$AMPUTATION)
+data$AMPUTATION <- as.factor(data$AMPUTATION)
 data %>%
   ggplot(aes(x=AMPUTATION,y=log10(NEAR_DIST)))+
   geom_boxplot()+
@@ -33,7 +33,7 @@ data %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 0
 
 ttest
 ```{r}
-t.test(data$NEAR_DIST~datag$AMPUTATION)
+t.test(data$NEAR_DIST~data$AMPUTATION)
 ```
 
 
@@ -42,13 +42,13 @@ t.test(data$NEAR_DIST~datag$AMPUTATION)
 
 
 detecting mutiple injury
-```{r}
+```{r, include=FALSE}
 Left<-function(x,chr){
     return(substr(x,1,chr))}
 
-data<-mutate(datag, leftMul = Left(PARTOFBODYTITLE,3))
+data<-mutate(data, leftMul = Left(PARTOFBODYTITLE,3))
 
-data<-mutate(datag, MultiInj = ifelse(datag$leftMul=="Mul", "1", "0"))
+data<-mutate(data, MultiInj = ifelse(data$leftMul=="Mul", "1", "0"))
 head(data)
 
 ```
@@ -59,11 +59,3 @@ cRegression　(age, distance, hospitalization, multiple injury+/-)
 fit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
 summary(fit)
 ```
-
-
-```{r}
-data %>% ggplot(x=MultiInj, y=AMPUTATION)+
-  geom_col()
-```
-
-
