@@ -38,11 +38,11 @@ b<-b %>%   rename('ZIP' = 'GEO.id2')
 c<-c %>%   rename('ZIP' = 'GEO.id2')
 d<-d %>%   rename('ZIP' = 'GEO.id2')
 e<-e %>%   rename('ZIP' = 'GEO.id2')
-data <- data %>% left_join(a,by="ZIP")
-data <- data %>% left_join(b,by="ZIP")
-data <- data %>% left_join(c,by="ZIP")
-data <- data %>% left_join(d,by="ZIP")
-data <- data %>% left_join(e,by="ZIP")
+#data <- data %>% left_join(a,by="ZIP")
+#data <- data %>% left_join(b,by="ZIP")
+#data <- data %>% left_join(c,by="ZIP")
+#data <- data %>% left_join(d,by="ZIP")
+#data <- data %>% left_join(e,by="ZIP")
 
 
 #add_state population
