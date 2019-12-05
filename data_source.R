@@ -1,11 +1,53 @@
 library(tidyverse)
 library(readr)
-dataz <- read_delim("injurydata.csv",";", escape_double = FALSE, trim_ws = TRUE)
+library(ggrepel)
+library(dslabs)
+
+data <- read_delim("injurydata.csv",";", escape_double = FALSE, trim_ws = TRUE)
+
+#cleaning_employer 
+data$EMPLOYER =gsub(".*usps|us postal|united states postal|u.s. postal|u.s postal|u. s postal|u. s. postal.*","US_Postal_Service",                   ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*US_Postal_Service.*","USPS", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*united parcel|ups |ups,.*","United_Parcel_Service", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*United_Parcel_Service.*","UPS", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*american airl.*","American Airlines", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*AT &|AT&.*","AT_T", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*AT_T.*","AT&T Inc", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*walmart|wallmart|wal-mart.*","wal_mart", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*wal_mart.*","Walmart", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Publix.*","Publix_", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Publix_.*","Publix", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Asplundh.*","Asplundh_", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Asplundh_.*","Asplundh", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*sodexo.*","sodexo_", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*sodexo_.*","Sodexo", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Waste Management.*","Waste_Management", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Waste_Management.*","Waste Management", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Tyson Foods.*","Tyson_Foods", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Tyson_Foods.*","Tyson Foods", ignore.case = TRUE, data$EMPLOYER)
+
+#add SES
+a <-read_csv("ACS_17_5YR_S0101_with_ann.csv")
+b  <-read_csv("ACS_17_5YR_S0701_with_ann.csv")
+c <-read_csv("ACS_17_5YR_S0801_with_ann.csv")
+d <-read_csv("ACS_17_5YR_S1101_with_ann.csv")
+e <-read_csv("ACS_17_5YR_S1901_with_ann.csv")
+f <-read_csv("ACS_17_5YR_S2301_with_ann.csv")
+a<-a %>%   rename('ZIP' = 'GEO.id2')
+b<-b %>%   rename('ZIP' = 'GEO.id2')
+c<-c %>%   rename('ZIP' = 'GEO.id2')
+d<-d %>%   rename('ZIP' = 'GEO.id2')
+e<-e %>%   rename('ZIP' = 'GEO.id2')
+data <- data %>% left_join(a,by="ZIP")
+data <- data %>% left_join(b,by="ZIP")
+data <- data %>% left_join(c,by="ZIP")
+data <- data %>% left_join(d,by="ZIP")
+data <- data %>% left_join(e,by="ZIP")
+
 
 #add_state population
-injury_state <- dataz %>% group_by(STATE) %>% summarise(number = n())
-datax <- transform(injury_state, population = c(4898246,735720,55689,7275070,3026412,39747267,5770545,3567871,975033,711571,29087070,10627767,162742,1416589,1790182,12700381,6718616,3167997,2910931,4484047,4652581,1342097,6062917,6939373,10020472,5655925,2987895,6147861,1074532,1940919,3087025,1363852,8922547,2096034,19491339,10497741,760900,55144,11718568,3948950,4245901,12813969,3113659,1056738,5147111,892631,6833793,29087070,3221610,627180,106405,8571946,7666343,1791951,5832661,572381))
-datax %>% ungroup(STATE)
+dataa <- left_join(data, state_pop.csv, by = "STATE")
+
 
 #filter hospitarisation(0/1)
 dataa <- datax %>% filter(HOSPITALIZED<2)
