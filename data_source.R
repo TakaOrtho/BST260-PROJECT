@@ -46,7 +46,8 @@ data <- data %>% left_join(e,by="ZIP")
 
 
 #add_state population
-dataa <- left_join(data, state_pop.csv, by = "STATE")
+f <-read_csv("state_pop.csv")
+dataa <- data%>% left_join(f, by = "STATE")
 
 
 #filter hospitarisation(0/1)
@@ -71,3 +72,4 @@ data<-mutate(data, MultiInj = ifelse(data$leftMul=="Mul", "1", "0"))
 data
 #### 出力
 ##write.csv(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.csv", sep=";" ) 
+
