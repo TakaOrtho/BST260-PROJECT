@@ -48,7 +48,7 @@ data$EMPLOYER =gsub(".*Tyson_Foods.*","Tyson Foods", ignore.case = TRUE, data$EM
 #add_state population
 f <-read_csv("state_pop.csv",col_names = F)
 f <- rename(f,STATE=X1)
-dataa <- data %>% left_join(f, by="STATE")
+datax <- data %>% left_join(f, by="STATE")
 
 
 #filter hospitarisation(0/1)
