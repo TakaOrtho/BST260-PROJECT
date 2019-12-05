@@ -46,8 +46,9 @@ data <- data %>% left_join(e,by="ZIP")
 
 
 #add_state population
-f <-read_csv("state_pop.csv")
-dataa <- data%>% left_join(f, by = "STATE")
+f <-read_csv("state_pop.csv",col_names = F)
+f <- rename(f,STATE=X1)
+dataa <- data %>% left_join(f, by="STATE")
 
 
 #filter hospitarisation(0/1)
