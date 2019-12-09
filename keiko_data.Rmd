@@ -8,8 +8,9 @@ output: html_document
 
 read datafile 
 ```{r setup, include=FALSE}
-source("Datasourse.R")
 library(ggplot2)
+source("data_sourse.R")
+
 ```
 
 cアンプタ+/-の距離の箱ひげ図
