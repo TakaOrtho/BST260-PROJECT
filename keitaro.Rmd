@@ -70,12 +70,19 @@ data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
 
 data_amputation_rate <- data %>% group_by(STATE) %>%
   summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n()),amputation_rate = mean(AMPUTATION), amputation =sum(AMPUTATION)) %>% 
-  filter(amputation >= 50)
+  filter(amputation >= 10)
 
 
 data_amputation_rate %>% 
   ggplot(aes(x = mean, y = amputation_rate, label = STATE, size = amputation)) +
   geom_point()+
+  xlab("Distance from hospital")+
+  ylab("Amputation rate")
+
+data_amputation_rate %>% 
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE, size = amputation)) +
+  geom_point()+
+  geom_text(hjust = -0.2, nudge_x = 0.05, size = 3) +
   xlab("Distance from hospital")+
   ylab("Amputation rate")
 
@@ -86,7 +93,7 @@ library(ggrepel)
 data_amputation_rate %>% mutate(abb = state2abbr(STATE)) %>%
   ggplot(aes(x = mean, y = amputation_rate, label = abb, size = amputation)) +
   geom_point()+
-  geom_text(hjust = -0.1, nudge_x = 0.05, size = 3) +
+  geom_text(hjust = -0.2, nudge_x = 0.05, size = 3) +
   xlab("Distance from hospital")+
   ylab("Amputation rate") +
   xlim(0,15000)
