@@ -80,10 +80,21 @@ data_amputation_rate %>%
   ylab("Amputation rate")
 
 
-data_amputation_rate %>% 
-  ggplot(aes(x = mean, y = amputation_rate, label = STATE, size = amputation)) +
+library(openintro)
+library(ggrepel)
+
+data_amputation_rate %>% mutate(abb = state2abbr(STATE)) %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = abb, size = amputation)) +
   geom_point()+
   geom_text(hjust = -0.1, nudge_x = 0.05, size = 3) +
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,15000)
+
+data_amputation_rate %>% mutate(abb = state2abbr(STATE)) %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = abb, size = amputation)) +
+  geom_point()+
+  geom_text_repel(size =3) +
   xlab("Distance from hospital")+
   ylab("Amputation rate") +
   xlim(0,15000)
