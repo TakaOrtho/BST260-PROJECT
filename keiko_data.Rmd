@@ -8,13 +8,13 @@ output: html_document
 
 read datafile 
 ```{r setup, include=FALSE}
-
 library(ggplot2)
-source("data_source.R")
+source("./data_sourse.R")
 
+data$HOSPITALIZED <- as.numeric(data$HOSPITALIZED)
+data$MultiInj <- as.factor(data$MultiInj)
 ```
 
-cアンプタ+/-の距離の箱ひげ図
 
 boxplot
 ```{r}
@@ -42,22 +42,109 @@ t.test(data$NEAR_DIST~data$AMPUTATION)
 
 ### regression
 
+####univariate Regression　(distance)
+```{r}
+mlog <- glm(AMPUTATION ~ NEAR_DIST , data = data, family = "binomial")
+summary(mlog)
+```
 
-detecting mutiple injury
-```{r, include=FALSE}
-Left<-function(x,chr){
-    return(substr(x,1,chr))}
+OR
+```{r}
+exp(cbind(OR = coef(mlog), confint(mlog)))
+```
 
-data<-mutate(data, leftMul = Left(PARTOFBODYTITLE,3))
+```{r}
+#create values
+fit_1 <- with(data, data.frame(NEAR_DIST = rep(seq(from = 1, to = 100000, length.out = 1000), 2)))
 
-data<-mutate(data, MultiInj = ifelse(data$leftMul=="Mul", "1", "0"))
-head(data)
+#generate
+fit_2 <- cbind(fit_1, predict(mlog, newdata = fit_1, type = "link",se = TRUE))
+fit_2 <- within(fit_2, {
+    PredictedProb <- plogis(fit)
+    LL <- plogis(fit - (1.96 * se.fit))
+    UL <- plogis(fit + (1.96 * se.fit))
+})
 
+## view first few rows of final dataset
+head(fit_2)
+nrow(fit_2)
+
+#plot
+ggplot(fit_2, aes(x = NEAR_DIST, y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
+    
+ggplot(fit_2, aes(x = log10(NEAR_DIST), y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
 ```
 
 
-cRegression　(age, distance, hospitalization, multiple injury+/-)
+
+####multivariate logistic Regression　(distance, hospitalization, multiple injury+/-)
 ```{r}
-fit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
-summary(fit)
+mylogit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
+summary(mylogit)
+```
+
+calculating Odds Ratio
+```{r}
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+```
+
+###not working multivariate log plot
+Plotting
+```{r}
+library(ggplot2)
+ggplot(data, aes(x=NEAR_DIST, y=AMPUTATION)) + geom_point() + 
+  stat_smooth(method="glm", method.args=list(family="binomial"), se=FALSE)
+
+par(mar = c(4, 4, 1, 1)) # Reduce some of the margins so that the plot fits better
+plot(data$NEAR_DIST, data$AMPUTATION)
+curve(predict(fit, data.frame(NEAR_DIST=x), type="response"), add=TRUE) 
+
+```
+
+```{r}
+
+
+#calculate  predicted probability
+newdataa <- with(data, data.frame(NEAR_DIST= mean(NEAR_DIST),  HOSPITALIZED  = 0,MultiInj=factor(0:1)))
+newdatab <- with(data, data.frame(NEAR_DIST= mean(NEAR_DIST),  HOSPITALIZED  = 1,MultiInj=factor(0:1)))
+newdatac <- with(data, data.frame(NEAR_DIST= mean(NEAR_DIST),  HOSPITALIZED =factor(0:1) ,MultiInj= 0))
+newdatad <- with(data, data.frame(NEAR_DIST= mean(NEAR_DIST),  HOSPITALIZED =factor(0:1) ,MultiInj= 1))
+
+## view data frame
+newdataa
+newdatab
+newdatac
+newdatad
+
+# table of predicted probabilities
+newdata1$h0 <- predict(mylogit, newdata = newdataa, type = "response")
+newdata1$h1 <- predict(mylogit, newdata = newdatab, type = "response")
+newdata1$m0 <- predict(mylogit, newdata = newdatac, type = "response")
+newdata1$m1 <- predict(mylogit, newdata = newdatad, type = "response")
+newdata1
+
+#create values
+newdata2 <- with(data, data.frame(NEAR_DIST = rep(seq(from = 1, to = 10000, length.out = 1000), 2),  HOSPITALIZED= factor(rep(0:1, each = 50)), MultiInj= factor(rep(0:1, each = 50))))
+head(newdata2) 
+nrow(newdata2)
+    
+#generate
+newdata3 <- cbind(newdata2, predict(mylogit, newdata = newdata2, type = "link",
+    se = TRUE))
+newdata3 <- within(newdata3, {
+    PredictedProb <- plogis(fit)
+    LL <- plogis(fit - (1.96 * se.fit))
+    UL <- plogis(fit + (1.96 * se.fit))
+})
+
+## view first few rows of final dataset
+head(newdata3)
+nrow(newdata3)
+
+#plot
+ggplot(newdata3, aes(x = NEAR_DIST, y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL), alpha = 0.2) + geom_line(aes(colour =MultiInj),
+    size = 1)
 ```
