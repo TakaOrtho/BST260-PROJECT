@@ -72,6 +72,33 @@ data_amputation_rate <- data %>% group_by(STATE) %>%
   summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n()),amputation_rate = mean(AMPUTATION), amputation =sum(AMPUTATION)) %>% 
   filter(amputation >= 10)
 
+# manipulate data for the map
+data_amputation_rate_1 <- data_amputation_rate %>%
+  mutate(region = str_to_lower(STATE))
+
+library(maps)
+states_map <- map_data("state")
+amputation_map <- left_join(states_map, data_amputation_rate_1, by = "region")
+
+
+# Create the map
+amputation_map %>%
+ggplot(aes(long, lat, group = group))+
+  geom_polygon(aes(fill = amputation_rate), color = "gray90")+
+  scale_fill_gradient(low = "white", high = "#CB454A") +
+  labs(title = "Amputation rate")
+
+library(ggthemes)
+amputation_map %>%
+ggplot(mapping = aes(long, lat, group = group,fill = amputation_rate))+
+  geom_polygon(color = "black", size = 0.1) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  labs(title = "Amputation rate") + 
+  theme_map() +
+  scale_fill_gradient(low = "white", high = "#CB454A") 
+
+
+
 
 data_amputation_rate %>% 
   ggplot(aes(x = mean, y = amputation_rate, label = STATE, size = amputation)) +
@@ -116,11 +143,21 @@ data_amputation_rate %>%
 
 cor.test(data_amputation_rate$mean, data_amputation_rate$amputation_rate)
 
+```
 
+```{r}
+library(maps)
+library(ggthemes)
 
+us_map <- ggplot()+
+  geom_polygon(data = states_map, aes(long, lat, group = group), color = "black", size = 0.1, fill = "white") +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  theme_map() 
+us_map
 
-
-
+class(data$LATITUDE)
+data_map <- data %>% mutate(LONGITUDE = as.numeric(LONGITUDE), LATITUDE =as.numeric(LATITUDE), AMPUTATION = as.factor(AMPUTATION)) %>% filter(LATITUDE > 20 & LATITUDE < 50 & LONGITUDE > -120)
+us_map + geom_point(data = data_map, aes(x=LONGITUDE, y=LATITUDE, color = AMPUTATION), size=0.0001)
 
 ```
 
