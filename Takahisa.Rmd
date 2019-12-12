@@ -8,9 +8,21 @@ output: html_document
 ```{r data extraction}
 library(tidyverse)
 library(readr)
+EucDistHp <- read_csv("EucDistHp.csv", col_types = cols(OBJECTID = col_skip()))
 source("data_source.R")
+rm(datad,dataf,dataa,datas,datax,dataq)
 ```
-```{r data wrangling}
+
+
+```{r}
+#EucDistHp <- rename(EucDistHp,ZIP=ZCTA5CE10)
+#data<-data%>%left_join(EucDistHp,by='ZIP')
+```
+
+
+
+
+```{r mapping}
 library(leaflet)
 
 map <- data %>% filter(NATURETITLE=='Fractures') 
@@ -24,138 +36,4 @@ leaflet() %>%
 
 
 
-
-
-
-
-
-
-
-
-
-
-```{r amputaion and distance}
-
-res <- t.test(NEAR_DIST ~ AMPUTATION, data = data4)
-res$p.value
-res$estimate
-
-data_bar <- data4 %>% group_by(AMPUTATION) %>%
-  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
-data_bar 
-
-data_bar %>%
-  ggplot(aes(x = as.factor(AMPUTATION), y = mean)) +
-  geom_bar(stat = "identity")+
-  geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
-  xlab("amputation")+
-  ylab("distance from hospital")
-
-data_bar %>%
-  ggplot(aes(x = as.factor(AMPUTATION), y = mean)) +
-  geom_bar(stat = "identity")+
-  geom_errorbar(aes(ymin=mean - sd, ymax= mean +sd)) +
-  xlab("amputation")+
-  ylab("distance from hospital")
-
-summary(lm(AMPUTATION ~ NEAR_DIST, data=data4))
-
-
-```
-
-
-
-
-```{r distance and states, echo=FALSE}
-
-data_bar_s <- data4 %>% group_by(STATE) %>%
-  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
-data_bar_s
-class(data_bar)
-class(data_bar$mean)
-
-data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
-  ggplot(aes(x = STATE, y = mean)) +
-  geom_bar(stat = "identity")+
-  geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
-  xlab("State")+
-  ylab("distance from hospital") +
-   coord_flip() 
-
-```
-
-
-```{r amputation rate and distance by state}
-
-data_amputation_rate <- data4 %>% group_by(STATE) %>%
-  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n()),amputation_rate = mean(AMPUTATION)) 
-data_amputation_rate
-class(data_bar)
-class(data_bar$mean)
-class(data_bar$AMPUTATION)
-
-data_amputation_rate %>% 
-  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
-  geom_point()+
-  xlab("Distance from hospital")+
-  ylab("Amputation rate") +
-  xlim(0,6000)
-
-library(ggrepel)
-data_amputation_rate %>%
-  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
-  geom_point()+
-  geom_text(hjust = -0.1, nudge_x = 0.05, size = 3) +
-  xlab("Distance from hospital")+
-  ylab("Amputation rate") +
-  xlim(0,6000)
-
-data_amputation_rate %>% 
-  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
-  geom_point()+
-  geom_smooth(method="lm") +
-  xlab("Distance from hospital")+
-  ylab("Amputation rate") +
-  xlim(0,6000)
-
-cor.test(data_amputation_rate$mean, data_amputation_rate$amputation_rate)
-
-data_amputation_rate %>% filter(amputation_rate > 0) %>%
-  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
-  geom_point()+
-  geom_smooth(method="lm") +
-  xlab("Distance from hospital")+
-  ylab("Amputation rate") +
-  xlim(0,6000)
-
-
-
-
-
-```
-
-```{r}
-
-
-data$EMPLOYER =gsub(".*usps|us postal|united states postal|u.s. postal|u.s postal|u. s postal|u. s. postal.*","US_Postal_Service",                   ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*US_Postal_Service.*","USPS", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*united parcel|ups |ups,.*","United_Parcel_Service", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*United_Parcel_Service.*","UPS", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*american airl.*","American Airlines", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*AT &|AT&.*","AT_T", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*AT_T.*","AT&T Inc", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*walmart|wallmart|wal-mart.*","wal_mart", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*wal_mart.*","Walmart", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Publix.*","Publix_", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Publix_.*","Publix", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Asplundh.*","Asplundh_", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Asplundh_.*","Asplundh", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*sodexo.*","sodexo_", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*sodexo_.*","Sodexo", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Waste Management.*","Waste_Management", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Waste_Management.*","Waste Management", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Tyson Foods.*","Tyson_Foods", ignore.case = TRUE, data$EMPLOYER)
-data$EMPLOYER =gsub(".*Tyson_Foods.*","Tyson Foods", ignore.case = TRUE, data$EMPLOYER)
-  
-```
 
