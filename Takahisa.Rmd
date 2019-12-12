@@ -6,16 +6,40 @@ output: html_document
 ---
 
 ```{r data extraction}
+library(lubridate)
 library(tidyverse)
 library(readr)
-EucDistHp <- read_csv("EucDistHp.csv", col_types = cols(OBJECTID = col_skip()))
-inj_join <- read_csv("D:/Dropbox/HARVARD MPH/BST/BST260/BST260-PROJECT7/inj_join.csv",col_types = cols(XCoord = col_skip(),  YCoord = col_skip()))
 source("data_source.R")
 rm(datad,dataf,dataa,datas,datax,dataq)
 ```
 
 
+
+
 ```{r}
+data <- data %>% mutate(month = month(EVENTDATE), year = year(EVENTDATE)) 
+timeseries <- data %>% group_by(year,month) %>%
+  summarise(amputation =sum(AMPUTATION)) %>% inner_join(data, by=c('year'='year','month'='month'))
+
+timeseries <- data %>% group_by(year, month) %>%
+  mutate(amputation =sum(AMPUTATION)) 
+
+timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_line()+
+  xlab('Date')+ylab('Number of Amputaions (people)')
+
+timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_smooth()+
+  xlab('Date')+ylab('Number of Amputaions (people)')
+```
+
+
+
+
+
+```{r}
+
+EucDistHp <- read_csv("EucDistHp.csv", col_types = cols(OBJECTID = col_skip()))
+inj_join <- read_csv("D:/Dropbox/HARVARD MPH/BST/BST260/BST260-PROJECT7/inj_join.csv",col_types = cols(XCoord = col_skip(),  YCoord = col_skip()))
+
 EucDistHp <- rename(EucDistHp,ZIP=ZCTA5CE10)
 EucDistHp$ZIP <- as.numeric(as.character(EucDistHp$ZIP))
 inj_join <- rename(inj_join,ZIP=ZIP_1)
