@@ -70,6 +70,7 @@ Left<-function(x,chr){
 data<-mutate(data, leftMul = Left(PARTOFBODYTITLE,3))
 data<-mutate(data, MultiInj = ifelse(data$leftMul=="Mul", "1", "0"))
 
+
 data
 #### 出力
 ##write.csv(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.csv", sep=";" ) 
