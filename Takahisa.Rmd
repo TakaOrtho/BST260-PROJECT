@@ -9,14 +9,21 @@ output: html_document
 library(tidyverse)
 library(readr)
 EucDistHp <- read_csv("EucDistHp.csv", col_types = cols(OBJECTID = col_skip()))
+inj_join <- read_csv("D:/Dropbox/HARVARD MPH/BST/BST260/BST260-PROJECT7/inj_join.csv",col_types = cols(XCoord = col_skip(),  YCoord = col_skip()))
 source("data_source.R")
 rm(datad,dataf,dataa,datas,datax,dataq)
 ```
 
 
 ```{r}
-#EucDistHp <- rename(EucDistHp,ZIP=ZCTA5CE10)
-#data<-data%>%left_join(EucDistHp,by='ZIP')
+EucDistHp <- rename(EucDistHp,ZIP=ZCTA5CE10)
+EucDistHp$ZIP <- as.numeric(as.character(EucDistHp$ZIP))
+inj_join <- rename(inj_join,ZIP=ZIP_1)
+inj_join$ZIP <- as.numeric(as.character(inj_join$ZIP))
+data <- rename(data,ZIPpre=ZIP)
+
+data<-data%>%left_join(inj_join,by='ID')
+data<-data%>%left_join(EucDistHp ,by='ZIP')
 ```
 
 
