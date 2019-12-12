@@ -77,6 +77,29 @@ ggplot(fit_2, aes(x = log10(NEAR_DIST), y = PredictedProb)) + geom_ribbon(aes(ym
     ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
 ```
 
+zoom in normal scale
+```{r}
+#create values
+fit_1 <- with(data, data.frame(NEAR_DIST = rep(seq(from = 100, to = 100000, length.out = 1000), 2)))
+
+#generate
+fit_2 <- cbind(fit_1, predict(mlog, newdata = fit_1, type = "link",se = TRUE))
+fit_2 <- within(fit_2, {
+    PredictedProb <- plogis(fit)
+    LL <- plogis(fit - (1.96 * se.fit))
+    UL <- plogis(fit + (1.96 * se.fit))
+})
+
+## view first few rows of final dataset
+head(fit_2)
+nrow(fit_2)
+
+#plot
+ggplot(fit_2, aes(x = NEAR_DIST, y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
+    
+
+```
 
 
 ####multivariate logistic Regression　(distance, hospitalization, multiple injury+/-)
