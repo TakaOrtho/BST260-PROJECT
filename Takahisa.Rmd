@@ -42,11 +42,11 @@ ggmap(
 
 
 ```{r}
-data <- data %>% mutate(month = month(EVENTDATE), year = year(EVENTDATE)) 
-timeseries <- data %>% group_by(year,month) %>%
-  summarise(amputation =sum(AMPUTATION)) %>% inner_join(data, by=c('year'='year','month'='month'))
+data2 <- data %>% mutate(month = month(EVENTDATE), year = year(EVENTDATE)) 
+timeseries <- data2%>% group_by(year,month) %>%
+  summarise(amputation =sum(AMPUTATION)) %>% inner_join(data2, by=c('year'='year','month'='month'))
 
-timeseries <- data %>% group_by(year, month) %>%
+timeseries <- data2 %>% group_by(year, month) %>%
   mutate(amputation =sum(AMPUTATION)) 
 
 timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_line()+
@@ -54,6 +54,10 @@ timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_line()+
 
 timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_smooth()+
   xlab('Date')+ylab('Number of Amputaions (people)')
+
+timeseries <- data %>% group_by(year, month) %>%
+  mutate(amputation =sum(AMPUTATION)) 
+
 ```
 
 

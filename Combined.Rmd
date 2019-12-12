@@ -1,0 +1,376 @@
+---
+title: "BST260 Final Project"
+author: "Takahisa Ogawa\v  Kazuma Oyama\v  Keitaro Mahara\v  Keiko Kunitoki\v"
+date: "12/12/2019"
+output: html_document
+---
+
+
+
+```{R}
+library(tidyverse)
+library(readr)
+
+
+data <- read_delim("injurydata.csv",";", escape_double = FALSE, trim_ws = TRUE)
+
+#cleaning_employer 
+data$EMPLOYER =gsub(".*usps|us postal|united states postal|u.s. postal|u.s postal|u. s postal|u. s. postal.*","US_Postal_Service",                   ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*US_Postal_Service.*","USPS", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*united parcel|ups |ups,.*","United_Parcel_Service", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*United_Parcel_Service.*","UPS", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*american airl.*","American Airlines", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*AT &|AT&.*","AT_T", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*AT_T.*","AT&T Inc", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*walmart|wallmart|wal-mart.*","wal_mart", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*wal_mart.*","Walmart", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Publix.*","Publix_", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Publix_.*","Publix", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Asplundh.*","Asplundh_", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Asplundh_.*","Asplundh", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*sodexo.*","sodexo_", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*sodexo_.*","Sodexo", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Waste Management.*","Waste_Management", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Waste_Management.*","Waste Management", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Tyson Foods.*","Tyson_Foods", ignore.case = TRUE, data$EMPLOYER)
+data$EMPLOYER =gsub(".*Tyson_Foods.*","Tyson Foods", ignore.case = TRUE, data$EMPLOYER)
+
+#add SES
+#a <-read_csv("ACS_17_5YR_S0101_with_ann.csv")
+#b  <-read_csv("ACS_17_5YR_S0701_with_ann.csv")
+#c <-read_csv("ACS_17_5YR_S0801_with_ann.csv")
+#d <-read_csv("ACS_17_5YR_S1101_with_ann.csv")
+#e <-read_csv("ACS_17_5YR_S1901_with_ann.csv")
+#f <-read_csv("ACS_17_5YR_S2301_with_ann.csv")
+#a<-a %>%   rename('ZIP' = 'GEO.id2')
+#b<-b %>%   rename('ZIP' = 'GEO.id2')
+#c<-c %>%   rename('ZIP' = 'GEO.id2')
+#d<-d %>%   rename('ZIP' = 'GEO.id2')
+#e<-e %>%   rename('ZIP' = 'GEO.id2')
+#data <- data %>% left_join(a,by="ZIP")
+#data <- data %>% left_join(b,by="ZIP")
+#data <- data %>% left_join(c,by="ZIP")
+#data <- data %>% left_join(d,by="ZIP")
+#data <- data %>% left_join(e,by="ZIP")
+
+
+#add_state population
+f <-read_csv("state_pop.csv",col_names = F)
+f <- rename(f,STATE=X1)
+f <- rename(f,POP=X2)
+datax <- data %>% left_join(f, by="STATE")
+
+
+#filter hospitarisation(0/1)
+dataa <- datax %>% filter(HOSPITALIZED<2)
+datas <- dataa %>% filter(HOSPITALIZED>-1)
+#filter amputation(0/1)
+datad <- datas %>% filter(AMPUTATION<2)
+dataf <- datad %>% filter(AMPUTATION>-1)
+#filter by hospital id
+dataq <- dataf %>% filter(NEAR_FID>0)
+
+#distance less than 10^5 meter
+data <- dataq %>% filter(NEAR_DIST<10^5)
+
+#add_multiple injury
+Left<-function(x,chr){
+  return(substr(x,1,chr))}
+
+data<-mutate(data, leftMul = Left(PARTOFBODYTITLE,3))
+data<-mutate(data, MultiInj = ifelse(data$leftMul=="Mul", "1", "0"))
+
+
+data
+#### åºå
+##write.csv(datag, "C:/Users/keiko/Desktop/BST260-PROJECT/injurydata1130.csv", sep=";" ) 
+```
+
+
+
+
+```{r amputaion and distance}
+
+data_bar <- data %>% mutate(AMPUTATION = as.factor(AMPUTATION)) %>%
+                            group_by(AMPUTATION) %>%
+  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
+data_bar 
+
+data_bar %>%
+  ggplot(aes(x = AMPUTATION, y = mean, fill=AMPUTATION)) +
+  geom_bar(stat = "identity", width = 0.5)+
+  geom_errorbar(aes(ymin=mean - se, ymax= mean +se), width = 0.3) +
+  xlab("amputation")+
+  ylab("distance from hospital")
+
+summary(lm(AMPUTATION ~ NEAR_DIST, data=data))
+res <- t.test(NEAR_DIST ~ AMPUTATION, data = data)
+res$p.value
+res$estimate
+
+```
+
+
+
+
+```{r distance and states, echo=FALSE}
+
+data_bar_s <- data %>% group_by(STATE) %>%
+  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
+
+data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
+  ggplot(aes(x = STATE, y = mean, fill= STATE)) +
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
+  theme(legend.position = 'none') +
+  xlab("State")+
+  ylab("distance from hospital") +
+   coord_flip() 
+
+```
+
+
+```{r amputation rate and distance by state}
+
+data_amputation_rate <- data %>% group_by(STATE) %>%
+  summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n()),amputation_rate = mean(AMPUTATION), amputation =sum(AMPUTATION)) 
+
+# manipulate data for the map
+data_amputation_rate_1 <- data_amputation_rate %>%
+  mutate(region = str_to_lower(STATE))
+
+library(maps)
+states_map <- map_data("state")
+amputation_map <- left_join(states_map, data_amputation_rate_1, by = "region")
+
+# Create the map
+library(ggthemes)
+amputation_map %>%
+ggplot(mapping = aes(long, lat, group = group,fill = amputation_rate))+
+  geom_polygon(color = "black", size = 0.1) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  labs(title = "Amputation Rate") + 
+  theme_map() +
+  scale_fill_gradient(low = "white", high = "#CB454A") 
+
+
+data_amputation_rate <- data_amputation_rate %>% filter(amputation >= 10) 
+  data_amputation_rate  %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
+  geom_point()+
+  xlab("Distance from hospital")+
+  ylab("Amputation rate")+
+  ggtitle("Amputation Rate and Distance by State")
+
+library(openintro)
+library(ggrepel)
+
+data_amputation_rate %>% 
+  mutate(abb = state2abbr(STATE)) %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = abb, size = amputation)) +
+  geom_point()+
+  geom_text_repel(size =3) +
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,15000) +
+  ggtitle("Amputation Rate and Distance by State")
+
+data_amputation_rate %>% filter(amputation >= 10) %>%
+  ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
+  geom_point()+
+  geom_smooth(method="lm") +
+  xlab("Distance from hospital")+
+  ylab("Amputation rate") +
+  xlim(0,15000) +
+ ggtitle("Amputation Rate and Distance by State")
+
+cor.test(data_amputation_rate$mean, data_amputation_rate$amputation_rate)
+
+```
+
+```{r}
+library(maps)
+library(ggthemes)
+
+us_map <- ggplot()+
+  geom_polygon(data = states_map, aes(long, lat, group = group), color = "black", size = 0.1, fill = "white") +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  theme_map() 
+us_map
+
+data_map <- data %>% mutate(LONGITUDE = as.numeric(LONGITUDE), LATITUDE =as.numeric(LATITUDE), AMPUTATION = as.factor(AMPUTATION)) %>% filter(LATITUDE > 20 & LATITUDE < 50 & LONGITUDE > -120)
+
+injury_map <- us_map + geom_point(data = data_map, aes(x=LONGITUDE, y=LATITUDE, color = AMPUTATION), size=0.0001) +
+  ggtitle("Injury and Amputation Map")
+injury_map
+
+hosp_data <- read_csv("HPDATA.csv") %>% mutate(long= as.numeric(LONGI), lat= as.numeric(LATIT)) %>% 
+  filter(lat> 20 & lat< 50 & long > -120)
+injury_map + geom_point(data = hosp_data, aes(x=long, y=lat), color = "black", size = 0.1, alpha = 0.5) +
+  ggtitle("Injury and Hospital Map")
+
+
+```
+
+```{r}
+library(lubridate)
+data2 <- data %>% mutate(month = month(EVENTDATE), year = year(EVENTDATE)) 
+timeseries <- data2%>% group_by(year,month) %>%
+  summarise(amputation =sum(AMPUTATION)) %>% inner_join(data2, by=c('year'='year','month'='month'))
+
+timeseries <- data2 %>% group_by(year, month) %>%
+  mutate(amputation =sum(AMPUTATION)) 
+
+timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_line()+
+  xlab('Date')+ylab('Number of Amputaions (people)')
+
+timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_smooth()+
+  xlab('Date')+ylab('Number of Amputaions (people)')
+```
+
+
+
+
+```{r}
+injury_state <- data %>% group_by(STATE) %>% summarise(number = n())
+```
+
+```{r}
+injury_state_pop <- transform(injury_state, population = c(4898246,735720,7275070,3026412,39747267,5770545,3567871,975033,711571,29087070,10627767,162742,1416589,1790182,12700381,6718616,3167997,2910931,4484047,4652581,1342097,6062917,6939373,10020472,5655925,2987895,6147861,1074532,1940919,3087025,1363852,8922547,2096034,19491339,10497741,760900,55144,11718568,3948950,4245901,12813969,3113659,1056738,5147111,892631,6833793,29087070,3221610,627180,106405,8571946,7666343,1791951,5832661,572381))
+```
+
+```{r}
+ggplot(data = injury_state_pop, aes(x = population, y = number, label = STATE)) +
+  labs(title = "Relationship betweem population and the number of injury according to states ", x = "Population", y = "Number of injury") + geom_point()
+```
+```{r}
+pie_chart_hosp <- data %>% select(HOSPITALIZED)
+```
+```{r}
+pie_chart_hosp1 <- data %>% select(HOSPITALIZED)
+table(pie_chart_hosp)
+pie_chart_hosp2 <- c(8881,36041)
+pie(pie_chart_hosp2, radius=1, labels=c("Non-Hospitalzed 19.8%","Hospitalized 80.2%"), col=c("#0000FF","#FF8000"), main="Hospitalization Rate in All Injuries")
+```
+
+```{r}
+pie_chart_amp1 <- data %>% select(AMPUTATION)
+table(pie_chart_amp1)
+pie_chart_amp2 <- c(33173,11997)
+pie(pie_chart_amp2, radius=1, labels=c("Non-Amputation 73.4%","Amputation 26.6%"), col=c("#BFFF00","#FF0000"), main="Amputation Rate in All Injuries")
+```
+```{r}
+library(tidytext)
+library(tidyverse)
+library(wordcloud2)
+
+#NLP
+text <- data %>%  unnest_tokens(word, FINALNARRATIVE)
+data(stop_words)
+text <- text %>% anti_join(stop_words)
+text <-transform(text,Freq=0)
+
+#Bar chart
+text %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 5000) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
+
+#Word Cloud
+library(wordcloud2)
+wordcloud2(text,size=1,minSize=10)
+wctext <- text %>% group_by(word) %>% mutate(Freq = n())
+
+wctext%>% select(word,Freq)%>% 
+  distinct(word, .keep_all = TRUE)%>%
+  arrange(desc(Freq)) %>% 
+  wordcloud2()
+
+```
+```{r}
+state_hos_rate1 <- data %>% group_by(STATE) %>% filter(HOSPITALIZED==1) %>% summarise(number1 = n())
+state_hos_rate2 <- data %>% group_by(STATE) %>% filter(HOSPITALIZED!=2,3,4,9) %>% summarise(number2 = n())
+pie_chart_state1 <- merge(injury_state,state_hos_rate1)
+pie_chart_state2 <- merge(pie_chart_state1, state_hos_rate2)
+pie_chart_state3 <- mutate(pie_chart_state2, hos_rate=(number1/number2))
+```
+
+```{r}
+state_amp_rate1 <- data %>% group_by(STATE) %>% filter(AMPUTATION==1) %>% summarise(number3 = n())
+state_amp_rate2 <- data %>% group_by(STATE) %>% filter(AMPUTATION!=2,3,4,9) %>% summarise(number4 = n())
+pie_chart_state4 <- merge(pie_chart_state3,state_amp_rate1)
+pie_chart_state5 <- merge(pie_chart_state4,state_amp_rate2)
+pie_chart_state6 <- mutate(pie_chart_state5, amp_rate=(number3/number4))
+```
+```{r}
+ggplot(data = pie_chart_state6, aes(x = hos_rate, y = amp_rate, label = STATE)) +
+  labs(title = "Relationship betweem Hospitalization and Amputation Rates according to States ", x = "Hospitalization Rate", y = "Amputation Rate") + geom_point()
+```
+```
+
+```{r}
+data$HOSPITALIZED <- as.numeric(data$HOSPITALIZED)
+data$MultiInj <- as.factor(data$MultiInj)
+```
+
+boxplot
+```{r}
+data$AMPUTATION <- as.factor(data$AMPUTATION)
+data %>%
+  ggplot(aes(x=AMPUTATION,y=log10(NEAR_DIST)))+
+  geom_boxplot()+
+  xlab("amputation")+
+  ylab("distance from hospital log10")
+```
+density graph
+```{r}
+data %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 0.2)+
+  xlab("distance to hospital, log10, meter")
+```
+ttest
+```{r}
+t.test(data$NEAR_DIST~data$AMPUTATION)
+```
+### regression
+####univariate Regression　(distance)
+```{r}
+mlog <- glm(AMPUTATION ~ NEAR_DIST , data = data, family = "binomial")
+summary(mlog)
+```
+OR
+```{r}
+exp(cbind(OR = coef(mlog), confint(mlog)))
+```
+```{r}
+#create values
+fit_1 <- with(data, data.frame(NEAR_DIST = rep(seq(from = 1, to = 100000, length.out = 1000), 2)))
+#generate
+fit_2 <- cbind(fit_1, predict(mlog, newdata = fit_1, type = "link",se = TRUE))
+fit_2 <- within(fit_2, {
+    PredictedProb <- plogis(fit)
+    LL <- plogis(fit - (1.96 * se.fit))
+    UL <- plogis(fit + (1.96 * se.fit))
+})
+## view first few rows of final dataset
+head(fit_2)
+nrow(fit_2)
+#plot
+ggplot(fit_2, aes(x = NEAR_DIST, y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")+xlim(100,50000)
+ggplot(fit_2, aes(x = log10(NEAR_DIST), y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
+```
+####multivariate logistic Regression　(distance, hospitalization, multiple injury+/-)
+```{r}
+mylogit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
+summary(mylogit)
+```
+calculating Odds Ratio
+```{r}
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+```
+
