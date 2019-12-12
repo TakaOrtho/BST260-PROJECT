@@ -28,14 +28,15 @@ res <- t.test(NEAR_DIST ~ AMPUTATION, data = data)
 res$p.value
 res$estimate
 
-data_bar <- data %>% group_by(AMPUTATION) %>%
+data_bar <- data %>% mutate(AMPUTATION = as.factor(AMPUTATION)) %>%
+                            group_by(AMPUTATION) %>%
   summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
 data_bar 
 
 data_bar %>%
-  ggplot(aes(x = as.factor(AMPUTATION), y = mean)) +
-  geom_bar(stat = "identity")+
-  geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
+  ggplot(aes(x = AMPUTATION, y = mean, fill=AMPUTATION)) +
+  geom_bar(stat = "identity", width = 0.5)+
+  geom_errorbar(aes(ymin=mean - se, ymax= mean +se), width = 0.3) +
   xlab("amputation")+
   ylab("distance from hospital")
 
@@ -51,14 +52,11 @@ summary(lm(AMPUTATION ~ NEAR_DIST, data=data))
 
 data_bar_s <- data %>% group_by(STATE) %>%
   summarise(mean = mean(NEAR_DIST), sd =sd(NEAR_DIST), se = sd(NEAR_DIST)/sqrt(n())) 
-data_bar_s
-class(data_bar)
-class(data_bar$mean)
-
 data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
-  ggplot(aes(x = STATE, y = mean)) +
+  ggplot(aes(x = STATE, y = mean, fill= STATE)) +
   geom_bar(stat = "identity")+
   geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
+  theme(legend.position = 'none') +
   xlab("State")+
   ylab("distance from hospital") +
    coord_flip() 
