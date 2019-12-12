@@ -14,6 +14,31 @@ rm(datad,dataf,dataa,datas,datax,dataq)
 ```
 
 
+```{r}
+set.seed(2019)
+clusters <- kmeans(data[,1:2], 5)
+data$Borough <- as.factor(clusters$cluster)
+str(clusters)
+library(ggmap)
+library(maps)
+register_google(key ='AIzaSyBDLso8Zh-0N43d6reTGeiZffpmI50ssc4')
+has_google_key()
+map <- map_data("state")
+map <- get_map("New York", zoom = 10)
+ggmap(map) + geom_point(aes(x = Lon[], y = Lat[], colour = as.factor(Borough)),data = data) +
+  ggtitle("")
+
+
+ggmap(
+  ggmap = get_map(
+    "Dayton",
+     zoom = 13, scale = "auto",
+     maptype = "satellite",
+     source = "google"),
+  extent = "device",
+  legend = "topright"
+  )
+```
 
 
 ```{r}
