@@ -71,7 +71,7 @@ nrow(fit_2)
 
 #plot
 ggplot(fit_2, aes(x = NEAR_DIST, y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
-    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
+    ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")+xlim(100,50000)
     
 ggplot(fit_2, aes(x = log10(NEAR_DIST), y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
     ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
