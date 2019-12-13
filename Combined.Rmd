@@ -101,7 +101,7 @@ data_bar %>%
   geom_bar(stat = "identity", width = 0.5)+
   geom_errorbar(aes(ymin=mean - se, ymax= mean +se), width = 0.3) +
   xlab("amputation")+
-  ylab("distance from hospital")
+  ylab("distance from hospital (m)")
 
 summary(lm(AMPUTATION ~ NEAR_DIST, data=data))
 res <- t.test(NEAR_DIST ~ AMPUTATION, data = data)
@@ -124,7 +124,7 @@ data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
   geom_errorbar(aes(ymin=mean - se, ymax= mean +se)) +
   theme(legend.position = 'none') +
   xlab("State")+
-  ylab("distance from hospital") +
+  ylab("distance from hospital (m)") +
    coord_flip() 
 
 ```
@@ -158,7 +158,7 @@ data_amputation_rate <- data_amputation_rate %>% filter(amputation >= 10)
   data_amputation_rate  %>%
   ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
   geom_point()+
-  xlab("Distance from hospital")+
+  xlab("Distance from hospital (m)")+
   ylab("Amputation rate")+
   ggtitle("Amputation Rate and Distance by State")
 
@@ -170,7 +170,7 @@ data_amputation_rate %>%
   ggplot(aes(x = mean, y = amputation_rate, label = abb, size = amputation)) +
   geom_point()+
   geom_text_repel(size =3) +
-  xlab("Distance from hospital")+
+  xlab("Distance from hospital(m)")+
   ylab("Amputation rate") +
   xlim(0,15000) +
   ggtitle("Amputation Rate and Distance by State")
@@ -179,7 +179,7 @@ data_amputation_rate %>% filter(amputation >= 10) %>%
   ggplot(aes(x = mean, y = amputation_rate, label = STATE)) +
   geom_point()+
   geom_smooth(method="lm") +
-  xlab("Distance from hospital")+
+  xlab("Distance from hospital(m)")+
   ylab("Amputation rate") +
   xlim(0,15000) +
  ggtitle("Amputation Rate and Distance by State")
