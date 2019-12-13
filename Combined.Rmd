@@ -310,7 +310,7 @@ pie_chart_state6 <- mutate(pie_chart_state5, amp_rate=(number3/number4))
 ggplot(data = pie_chart_state6, aes(x = hos_rate, y = amp_rate, label = STATE)) +
   labs(title = "Relationship betweem Hospitalization and Amputation Rates according to States ", x = "Hospitalization Rate", y = "Amputation Rate") + geom_point()
 ```
-```
+
 
 ```{r}
 data$HOSPITALIZED <- as.numeric(data$HOSPITALIZED)
