@@ -335,6 +335,7 @@ data_bar %>%
 
 
 ## boxplot
+This graph compares the distance from hospital to the injury place between those who took amputation and those who didn't. Please note the y axis is described in log 10 scale in meter.
 ```{r}
 data$HOSPITALIZED <- as.numeric(data$HOSPITALIZED)
 data$MultiInj <- as.factor(data$MultiInj)
@@ -345,25 +346,36 @@ data %>%
   xlab("amputation")+
   ylab("distance from hospital log10")
 ```
+The median distance of those who took amputation seems longer. 
+
 ## density graph
+This graph also comparing the distance from hospital between those who took amputation and not. The peak of data are in 1,000 to 10,000 meter. 
+
+blue: Amputation +   red: amputation -
 ```{r}
 data %>% ggplot(aes(log10(NEAR_DIST), fill=AMPUTATION)) + geom_density(alpha = 0.2)+
   xlab("distance to hospital, log10, meter")
 ```
 ## ttest
+Then, we performed stutent t test. There is a significant difference in distance from hospital(p<0.001).
+
 ```{r}
 t.test(data$NEAR_DIST~data$AMPUTATION)
 ```
-### regression
-####univariate Regression　(distance)
+Mean distance: Amp- 5860(m)      Amp+ 6267 (m)
+
+## regression
+### univariate Regression　(distance)
+First, we saw the crude relationship between distance from hospital and probability of amputation.
 ```{r}
 mlog <- glm(AMPUTATION ~ NEAR_DIST , data = data, family = "binomial")
 summary(mlog)
 ```
-## OR
+### Odds Ratio
 ```{r}
 exp(cbind(OR = coef(mlog), confint(mlog)))
 ```
+#### probability graph for univariate logistic regression
 ```{r}
 #create values
 fit_1 <- with(data, data.frame(NEAR_DIST = rep(seq(from = 1, to = 100000, length.out = 1000), 2)))
@@ -383,15 +395,18 @@ ggplot(fit_2, aes(x = NEAR_DIST, y = PredictedProb)) + geom_ribbon(aes(ymin = LL
 ggplot(fit_2, aes(x = log10(NEAR_DIST), y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
     ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
 ```
-####multivariate logistic Regression　(distance, hospitalization, multiple injury+/-)
+### multivariate logistic Regression　(distance, hospitalization, multiple injury+/-)
 ```{r}
 mylogit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
 summary(mylogit)
 ```
-##calculating Odds Ratio
+#### Odds Ratio
 ```{r}
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 ```
+Estimated Odds Ratio for 1 m increase in distance is 1.000008 (95% CI: 1.000003-1.000013).
+
+As a result, 1 km increase in distance from hospital raise 1.008 times Odds of amputation, adjusting hospitalization and multiple injury.
 
 ## conclusion
 
