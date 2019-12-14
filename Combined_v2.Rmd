@@ -371,11 +371,15 @@ First, we saw the crude relationship between distance from hospital and probabil
 mlog <- glm(AMPUTATION ~ NEAR_DIST , data = data, family = "binomial")
 summary(mlog)
 ```
-### Odds Ratio
+The distance from hospital is significantly increases the probability of amputation(p<0.001).
+#### Odds Ratio
+Then, odds ratio and 95% confidence interval was calculated.
 ```{r}
 exp(cbind(OR = coef(mlog), confint(mlog)))
 ```
 #### probability graph for univariate logistic regression
+Next, we draw the graph showing the probability of amputation by distance from hospital.
+The gray band showes 95% CI.
 ```{r}
 #create values
 fit_1 <- with(data, data.frame(NEAR_DIST = rep(seq(from = 1, to = 100000, length.out = 1000), 2)))
@@ -396,10 +400,13 @@ ggplot(fit_2, aes(x = log10(NEAR_DIST), y = PredictedProb)) + geom_ribbon(aes(ym
     ymax = UL), alpha = 0.2) + geom_line()+xlab("Distance from Hospital")+ylab("Predicted Probability of Amputation")
 ```
 ### multivariate logistic Regression　(distance, hospitalization, multiple injury+/-)
+We also performed multivariable logistic regression analysis. Hostipalization and multiple injury (binomial) were adjusted.
 ```{r}
 mylogit <- glm(AMPUTATION ~ NEAR_DIST  + HOSPITALIZED + MultiInj, data = data, family = "binomial")
 summary(mylogit)
 ```
+Distance from hospital still increase the OR of amputation adjusting these 2 confounders.
+
 #### Odds Ratio
 ```{r}
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
