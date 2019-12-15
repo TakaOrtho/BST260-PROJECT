@@ -19,7 +19,7 @@ output: html_document
 
 ## Objectives
 
-• To investigate the association between the distance to a hospital and amputation rate in trauma patients.
+• To investigate the association between the distance from injury site to a hospitalization and amputation in trauma patients.
 
 ## Distance
 
@@ -375,5 +375,5 @@ As a result, 1 km increase in distance from hospital raise 1.008 times Odds of a
 
 ## conclusion
 
-• According to prior knowledge insisting time to hospital is related to outcome of injury, there is a significant relationship between distance from hospital and amputation rate.
+• In this study, the longer distance from injury site to a hospital was significantly associated with amputation in trauma patients.
 • The US, the country having vast land, have to care about the disposition of hospitals.
