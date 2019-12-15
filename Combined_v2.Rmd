@@ -80,26 +80,39 @@ ggplot(data = injury_state_pop, aes(x = population, y = number, label = STATE)) 
   labs(title = "Relationship betweem population and the number of injury according to states ", x = "Population", y = "Number of injury") + geom_point()
 ```
 
+## Hospitalization Rate in All Injuries
+
 ```{r}
-pie_chart_hosp <- data %>% select(HOSPITALIZED)
-table(pie_chart_hosp)
-pie_chart_hosp2 <- c(8881,36041)
+
+# check a frequency of hospitalization
+pie_chart_hosp1 <- data %>% select(HOSPITALIZED)
+table(pie_chart_hosp1)
+# make a pie chart
+pie_chart_hosp2 <- c(table(pie_chart_hosp1)[1],table(pie_chart_hosp1)[2])
 pie(pie_chart_hosp2, radius=1, labels=c("Non-Hospitalzed 19.8%","Hospitalized 80.2%"), col=c("#0000FF","#FF8000"), main="Hospitalization Rate in All Injuries")
 ```
 
+## Amputation Rate in All Injuries
+
 ```{r}
+# check a frequency of amputation 
 pie_chart_amp1 <- data %>% select(AMPUTATION)
 table(pie_chart_amp1)
-pie_chart_amp2 <- c(33173,11997)
-pie(pie_chart_amp2, radius=1, labels=c("Non-Amputation 73.4%","Amputation 26.6%"), col=c("#BFFF00","#FF0000"), main="Amputation Rate in All Injuries")
+
+# make a pie chart
+pie_chart_amp2 <- c(table(pie_chart_amp1)[1],table(pie_chart_amp1)[2])
+pie(table(pie_chart_amp1), radius=1, labels=c("Non-Amputation 73.4%","Amputation 26.6%"), col=c("#BFFF00","#FF0000"), main="Amputation Rate in All Injuries")
 ```
 
+## Relationship betweem Hospitalization and Amputation Rates according to States 
+
 ```{r}
+# group by state
 data_ah_rate <- data %>% group_by(STATE) %>%
-  summarise(amputation_rate = mean(AMPUTATION),   hospitalazation_rate = mean(HOSPITALIZED), 
+  summarise(amputation_rate = mean(AMPUTATION), hospitalazation_rate = mean(HOSPITALIZED), 
             number = n()) %>%
   filter(number > 50)
-
+# visualize
 ggplot(data = data_ah_rate, aes(x = hospitalazation_rate, y = amputation_rate, label = STATE)) +
   labs(title = "Relationship betweem Hospitalization and Amputation Rates according to States ", x = "Hospitalization Rate", y = "Amputation Rate") + geom_point() 
 
@@ -376,4 +389,5 @@ As a result, 1 km increase in distance from hospital raise 1.008 times Odds of a
 ## conclusion
 
 • In this study, the longer distance from injury site to a hospital was significantly associated with amputation in trauma patients.
+
 • The US, the country having vast land, have to care about the disposition of hospitals.
