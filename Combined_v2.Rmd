@@ -25,7 +25,7 @@ output: html_document
 
 • The U.S. Geological Survey developed the Geographic Names Information System (GNIS) for the U.S. Board on Geographic Names.
 
-• Distance is calculated by ArcGIS.
+• Distance is calculated by ArcGIS pro with Point Distance function.
 
 • Used minimum distance(Meter)
 
@@ -132,20 +132,30 @@ The plot shows hospitalization rates by state and amputation rates by state are 
 
 ## longitudinal analysis 
 ```{r}
+#load library
 library(lubridate)
 data2 <- data %>% mutate(month = month(EVENTDATE), year = year(EVENTDATE)) 
+
+#extract year and month format
 timeseries <- data2%>% group_by(year,month) %>%
   summarise(amputation =sum(AMPUTATION)) %>% inner_join(data2, by=c('year'='year','month'='month'))
 
+#Aggregate data into each month level
 timeseries <- data2 %>% group_by(year, month) %>%
   mutate(amputation =sum(AMPUTATION)) 
 
+#line graph
 timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_line()+
   xlab('Date')+ylab('Number of Amputaions (people)')
 
+#smooth line graph
 timeseries %>% ggplot()+aes(EVENTDATE,amputation) +geom_smooth()+
   xlab('Date')+ylab('Number of Amputaions (people)')
 ```
+
+According to longitudinal data, there was a tendensy that in summer, the number of amputation increased, where as in the winter it decreased.
+Over all, the number of amputation looks increasing.
+
 
 ## Natural Language Processing Infrastructure (NLP)
 
@@ -154,7 +164,7 @@ library(tidytext)
 library(tidyverse)
 library(wordcloud2)
 
-#NLP
+#NLP Extract text data and remove functional words such as articles or prepositions
 text <- data %>%  unnest_tokens(word, FINALNARRATIVE)
 data(stop_words)
 text <- text %>% anti_join(stop_words)
@@ -169,18 +179,24 @@ text %>%
   geom_col() +
   xlab(NULL) +
   coord_flip()
+```
 
+The bar chart shows the top eleven frequent words used in electoric health records.
+Many people could injured their left side hand or fingers. Machine could be the possible reason of amputation.
+
+
+```{r}
 #Word Cloud
 library(wordcloud2)
-wordcloud2(text,size=1,minSize=10)
 wctext <- text %>% group_by(word) %>% mutate(Freq = n())
 
 wctext%>% select(word,Freq)%>% 
   distinct(word, .keep_all = TRUE)%>%
   arrange(desc(Freq)) %>% 
   wordcloud2()
-
 ```
+
+Wordcloud shows a fancy visualization that reflects the result of the barchart above.
 
 ## Distance from hospital according to states
 
