@@ -202,6 +202,8 @@ data_bar_s %>% mutate(STATE = reorder(STATE, mean)) %>%
 
 ```
 
+Wyoming, North Dakota, and New Mexico were the three states with the longest distance from the injury site to the hospital.
+
 ## Amputation rate and distance according to states on us map
 
 ```{r}
@@ -227,6 +229,8 @@ ggplot(mapping = aes(long, lat, group = group,fill = amputation_rate))+
   theme_map() +
   scale_fill_gradient(low = "white", high = "#CB454A")
 ```
+
+It seems that the amputation rate is slightly high from the central part to the middle east part of the US.
 
 ## Amputation rate and distance according to states
 ```{r}
@@ -267,6 +271,7 @@ tidy(cor.test(data_amputation_rate$mean, data_amputation_rate$amputation_rate))
 
 ```
 
+In the analysis by state, the distance from the injury site to the hospital and amputation had no apparent association.
 
 
 ## Hospital location on injury map
