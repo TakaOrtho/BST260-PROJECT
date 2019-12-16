@@ -80,6 +80,10 @@ ggplot(data = injury_state_pop, aes(x = population, y = number, label = STATE)) 
   labs(title = "Relationship betweem population and the number of injury according to states ", x = "Population", y = "Number of injury") + geom_point()
 ```
 
+This plot shows that the more populous states have more trauma.
+
+
+
 ## Hospitalization Rate in All Injuries
 
 ```{r}
@@ -92,6 +96,9 @@ pie_chart_hosp2 <- c(table(pie_chart_hosp1)[1],table(pie_chart_hosp1)[2])
 pie(pie_chart_hosp2, radius=1, labels=c("Non-Hospitalzed 19.8%","Hospitalized 80.2%"), col=c("#0000FF","#FF8000"), main="Hospitalization Rate in All Injuries")
 ```
 
+The pie chart shows that a hospitalization rate is nearly 80%.
+
+
 ## Amputation Rate in All Injuries
 
 ```{r}
@@ -103,6 +110,9 @@ table(pie_chart_amp1)
 pie_chart_amp2 <- c(table(pie_chart_amp1)[1],table(pie_chart_amp1)[2])
 pie(table(pie_chart_amp1), radius=1, labels=c("Non-Amputation 73.4%","Amputation 26.6%"), col=c("#BFFF00","#FF0000"), main="Amputation Rate in All Injuries")
 ```
+
+The pie chart shows that an amputation rate is nearly a quarter in red.
+These results suggest that the subject of our study was relatively severe patients. 
 
 ## Relationship betweem Hospitalization and Amputation Rates according to States 
 
@@ -117,6 +127,8 @@ ggplot(data = data_ah_rate, aes(x = hospitalazation_rate, y = amputation_rate, l
   labs(title = "Relationship betweem Hospitalization and Amputation Rates according to States ", x = "Hospitalization Rate", y = "Amputation Rate") + geom_point() 
 
 ```
+
+The plot shows hospitalization rates by state and amputation rates by state are negatively correlated.
 
 ## longitudinal analysis 
 ```{r}
@@ -255,6 +267,8 @@ tidy(cor.test(data_amputation_rate$mean, data_amputation_rate$amputation_rate))
 
 ```
 
+
+
 ## Hospital location on injury map
 
 ```{r}
@@ -285,6 +299,8 @@ injury_map + geom_point(data = hosp_data, aes(x=long, y=lat), color = "black", s
 ```
 
 
+In these maps, red dots indicate “injury without amputaion”, blue dots indicate “injury with amputaion”. Black dots indicate hospitals.
+Amputation seems to be avoided around hospitals, and performed for cases getting injured far away from the hospital. 
 
 
 ## bar graph
@@ -303,7 +319,7 @@ data_bar %>%
   ylab("distance from hospital (m)")
 ```
 
-
+The bar graph shows distance from the injury place to the hospital is higher in patients with amputation than those without.
 
 ## boxplot
 This graph compares the distance from hospital to the injury place between those who took amputation and those who didn't. Please note the y axis is described in log 10 scale in meter.
